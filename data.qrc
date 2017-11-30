@@ -2,5 +2,24 @@
     <qresource prefix="/">
         <file>data/horizontal.png</file>
         <file>data/vertical.png</file>
+        <file>data/anim0.png</file>
+        <file>data/anim1.png</file>
+        <file>data/anim2.png</file>
+        <file>data/anim3.png</file>
+        <file>data/anim4.png</file>
+        <file>data/anim5.png</file>
+        <file>data/anim6.png</file>
+        <file>data/anim7.png</file>
+        <file>data/anim8.png</file>
+        <file>data/anim9.png</file>
+        <file>data/anim10.png</file>
+        <file>data/anim11.png</file>
+        <file>data/anim12.png</file>
+        <file>data/anim13.png</file>
+        <file>data/anim14.png</file>
+        <file>data/anim15.png</file>
+        <file>data/anim16.png</file>
+        <file>data/anim17.png</file>
+        <file>data/anim18.png</file>
     </qresource>
 </RCC>
