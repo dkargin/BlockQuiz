@@ -36,6 +36,9 @@ class GameField
     // Switches block state
     BlockState switchBlock(int x, int y);
 
+    // Set block state
+    void setBlock(int x, int y, BlockState value);
+
     int getWidth() const
     {
         return width;
@@ -52,6 +55,8 @@ class GameField
     }
 
     BlockState getState(int x, int y) const;
+
+    bool checkVictory() const;
 
     FieldState & getCurrentField();
 protected:

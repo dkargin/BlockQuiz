@@ -2,11 +2,11 @@
 #include <QtWidgets>
 
 NewGameDialog::NewGameDialog(QWidget *parent, bool allow_exit)
-    :QDialog(parent)
+    :QDialog(parent, 0)
 {
     QGridLayout * layout = new QGridLayout();
 
-    QLabel * labelSize = new QLabel(tr("Field size"));
+    QLabel * labelSize = new QLabel(tr("Board size"));
     layout->addWidget(labelSize, 0, 0, 1, 1);
     spinner = new QSpinBox();
     spinner->setRange(4, 10);
@@ -20,6 +20,7 @@ NewGameDialog::NewGameDialog(QWidget *parent, bool allow_exit)
     if(allow_exit)
     {
         QPushButton * btnExit = new QPushButton(tr("Exit"));
+        connect(btnExit, SIGNAL(clicked()), this, SLOT(close()));
         connect(btnExit, SIGNAL(clicked()), this, SIGNAL(onExit()));
         layout->addWidget(btnExit, 1, 1, 1, 1 );
     }
@@ -31,9 +32,8 @@ NewGameDialog::NewGameDialog(QWidget *parent, bool allow_exit)
     }
 
     this->setLayout(layout);
-
-    this->setWindowTitle(tr("Select field size"));
-    this->setFixedSize(180, 80);
+    this->setWindowTitle(tr("New game"));
+    this->setFixedSize(230, 80);
 }
 
 void NewGameDialog::onStartClicked()

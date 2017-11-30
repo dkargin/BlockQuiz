@@ -29,14 +29,18 @@ SOURCES += \
     gamefield.cpp \
     gamedata.cpp \
     blockwidget.cpp \
-    newgamedialog.cpp
+    newgamedialog.cpp \
+    victorydialog.cpp \
+    leaderboarddialog.cpp
 
 HEADERS += \
         mainwindow.h \
     gamefield.h \
     gamedata.h \
     blockwidget.h \
-    newgamedialog.h
+    newgamedialog.h \
+    victorydialog.h \
+    leaderboarddialog.h
 
 RESOURCES += \
     data.qrc

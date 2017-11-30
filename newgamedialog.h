@@ -14,7 +14,6 @@ public:
 signals:
     void onStartGame(int size);
     void onExit();
-
 protected Q_SLOTS:
     void onStartClicked();
 

@@ -1,4 +1,5 @@
 #include "gamefield.h"
+#include <cassert>
 
 void makeRandomField(FieldState &field)
 {
@@ -55,6 +56,7 @@ BlockState GameField::switchBlock(int x, int y)
     if(fields.empty())
         return BlockState::BlockInvalid;
     FieldState & field = fields.back();
+    assert(x < width && y < height);
     int index = x + y * width;
     BlockState & s = field[index];
     if(s == BlockState::BlockHorizontal)
@@ -62,6 +64,31 @@ BlockState GameField::switchBlock(int x, int y)
     else if(s == BlockState::BlockVertical)
         s = BlockState::BlockHorizontal;
     return s;
+}
+
+void GameField::setBlock(int x, int y, BlockState value)
+{
+    if(fields.empty())
+        return;
+    FieldState & field = fields.back();
+    assert(x < width && y < height);
+    int index = x + y * width;
+    field[index] = value;
+}
+
+bool GameField::checkVictory() const
+{
+    if(fields.empty())
+        return false;
+
+    // Calculating a number of horizontal fields
+    int completion = 0;
+    for(BlockState state : fields.back())
+    {
+        if(state == BlockState::BlockHorizontal)
+            completion++;
+    }
+    return completion == this->getFieldSize();
 }
 
 BlockState GameField::getState(int x, int y) const
