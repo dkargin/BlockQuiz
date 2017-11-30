@@ -214,7 +214,7 @@ void MainWindow::updateAnimation()
 
     animationTick++;
 
-    if(animationTick == animationDuration)
+    if(animationTick == animationDuration && animationDuration > 0)
     {
         animTimer->stop();
         animationTick = 0;
@@ -233,7 +233,13 @@ bool MainWindow::hasEnqueuedCommand() const
 
 void MainWindow::runNextCommand()
 {
-    if(!hasEnqueuedCommand() || animationTick != animationDuration)
+    if(!hasEnqueuedCommand())
+    {
+        qInfo().nospace() << QString::asprintf("Has no command to execute");
+        return;
+    }
+
+    if(animationTick != animationDuration)
     {
         qInfo().nospace() << QString::asprintf("Can not execute next command right now");
         return;
@@ -248,12 +254,16 @@ void MainWindow::runNextCommand()
     queuedBlockY = -1;
     // 1. Generate new field state
     field.newTurn();
+    int max_offset = 0;
+    int offset_per_tile = 2;
     // 2. Update columns and rows
     for(int col = 0; col < field.getWidth(); col++)
     {
         BlockState state = field.switchBlock(col, y);
         int index = col + y * field.getWidth();
-        this->field_widgets[index]->setAnimationState(state, 0);
+        int offset = abs(x - col) * offset_per_tile;
+        max_offset = std::max<int>(offset, max_offset);
+        this->field_widgets[index]->setAnimationState(state, offset);
     }
 
     for(int row = 0; row < field.getWidth(); row++)
@@ -262,14 +272,16 @@ void MainWindow::runNextCommand()
         {
             BlockState state = field.switchBlock(x, row);
             int index = x + row * field.getWidth();
-            this->field_widgets[index]->setAnimationState(state, 0);
+            int offset = abs(y - row) * offset_per_tile;
+            max_offset = std::max<int>(offset, max_offset);
+            this->field_widgets[index]->setAnimationState(state, offset);
         }
     }
     // 3. Sync UI according to new field state
     this->syncUI();
     // 4. Run animation
     this->animationTick = 0;
-    this->animationDuration = gameData->animFrames-1;
+    this->animationDuration = max_offset + gameData->animFrames-1;
     this->animTimer->start();
 }
 
