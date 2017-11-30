@@ -27,12 +27,14 @@ SOURCES += \
         main.cpp \
         mainwindow.cpp \
     gamefield.cpp \
-    fieldblock.cpp
+    gamedata.cpp \
+    blockwidget.cpp
 
 HEADERS += \
         mainwindow.h \
     gamefield.h \
-    fieldblock.h
+    gamedata.h \
+    blockwidget.h
 
 RESOURCES += \
     data.qrc

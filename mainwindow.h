@@ -5,7 +5,10 @@
 #include <QLabel>
 #include <QGridLayout>
 
+
+#include "blockwidget.h"
 #include "gamefield.h"
+#include "gamedata.h"
 
 class MainWindow : public QWidget, public GameFieldController
 {
@@ -23,9 +26,15 @@ public:
     void onFieldUpdated();
     void onBlockChanged(int x, int y);
 
+    void syncUI();
 protected:
     QGridLayout * field_layout;
 
+    GameData * gameData;
+
+    std::vector<BlockWidget*> field_widgets;
+
+    void loadData();
     void destroyField(bool deleleWidgets=true);
 };
 

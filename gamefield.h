@@ -12,21 +12,34 @@ public:
     virtual ~GameFieldController() {}
 };
 
+enum BlockState
+{
+    BlockInvalid,
+    BlockHorizontal,
+    BlockVertical,
+};
+
+typedef std::vector<BlockState> FieldState;
+
 class GameField
 {
   public:
     GameField(GameFieldController * controller);
+
+
+
     // Initializes game field with given size
     void init(int width, int height);
 
-    // Switches block state
-    void switchBlock(int x, int y);
+    // Make new turn, making copy of current field
+    int newTurn();
+    // Return to previous state
+    bool cancelTurn();
+    // Get current turn
+    int currentTurn() const;
 
-    enum BlockState
-    {
-        Horisontal,
-        Vertical,
-    };
+    // Switches block state
+    BlockState switchBlock(int x, int y);
 
     int getWidth() const
     {
@@ -38,16 +51,19 @@ class GameField
         return height;
     }
 
-    typedef std::vector<BlockState> FieldState;
+    int getFieldSize() const
+    {
+        return width * height;
+    }
 
-    void makeRandomField(FieldState & field);
+    BlockState getState(int x, int y) const;
 
-    // Return to previous state
-    bool rollBack();
+    //
+    FieldState & getCurrentField();
 protected:
 
     // A list of previous field states
-    std::list<FieldState> states;
+    std::list<FieldState> fields;
     int width = 0, height = 0;
     int retries = 0;
 

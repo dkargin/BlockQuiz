@@ -1,6 +1,6 @@
-#include "fieldblock.h"
+#include "blockwidget.h"
 
-FieldBlock::FieldBlock(GameFieldController * field, int x, int y)
+BlockWidget::BlockWidget(GameFieldController * field, int x, int y)
     :QLabel(), x(x), y(y), controller(field)
 {
     std::stringstream ss;
@@ -8,11 +8,36 @@ FieldBlock::FieldBlock(GameFieldController * field, int x, int y)
     this->setText(ss.str().c_str());
     this->setAlignment(Qt::AlignHCenter | Qt::AlignBottom);
 
+    state = GameField::Horisontal;
+
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     timer->start(1000);
 }
 
+void BlockWidget::paintEvent(QPaintEvent *)
+{
+    QTime time = QTime::currentTime();
+
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+    QImage * img = nullptr;
+    if(state == GameField::Horisontal)
+        img = gd->img_hor;
+    if(state == GameField::Vertical)
+        img = gd->img_ver;
+
+    if(img != nullptr)
+        painter.drawPixmap(0,0,img);
+}
+
+void BlockWidget::setState(BlockState new_state, int duration_ms, int delay_ms)
+{
+    this->state = new_state;
+    // TODO: do animation stuff here
+}
+
+/*
 void FieldBlock::paintEvent(QPaintEvent *)
 {
     static const QPoint hourHand[3] = {
@@ -34,6 +59,7 @@ void FieldBlock::paintEvent(QPaintEvent *)
 
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
+
     painter.translate(width() / 2, height() / 2);
     painter.scale(side / 200.0, side / 200.0);
 
@@ -67,4 +93,10 @@ void FieldBlock::paintEvent(QPaintEvent *)
             painter.drawLine(92, 0, 96, 0);
         painter.rotate(6.0);
     }
+}
+*/
+
+void BlockWidget::mouseReleaseEvent ( QMouseEvent * event )
+{
+    this->controller->onBlockChanged(x, y);
 }
