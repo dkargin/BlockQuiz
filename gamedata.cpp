@@ -27,9 +27,11 @@ GameData::GameData()
 
     this->blockSize = img_hor.width();
 
+    // Caution: this anim frames should correspond to real number of frames in game resources
+    animFrames = 10;
     // Loading animation frames for rotations from 0 to 90 degrees
-    // Caution: this anim frames are hardcoded
-    for(int i = 0; i < 9; i++)
+
+    for(int i = 0; i < animFrames; i++)
     {
         QString path = QString::asprintf(":data/anim%d.png", i);
         this->hor_to_ver.push_back(QImage(path));
@@ -41,7 +43,7 @@ GameData::GameData()
 
     // Loading animation frames for rotations from 90 to 180 degrees
     // Caution: this anim sequence is hardcoded
-    for(int i = 9; i < 18; i++)
+    for(int i = 9; i < 9 + animFrames; i++)
     {
         QString path = QString::asprintf(":data/anim%d.png", i);
         this->ver_to_hor.push_back(QImage(path));

@@ -32,6 +32,8 @@ public:
     // Generates UI for this field
     void generateFieldWidgets(GameField & field);
     void syncUI();
+
+    bool isLocked() const;
 protected:
     virtual void keyPressEvent(QKeyEvent *event) override;
 
@@ -41,7 +43,7 @@ public Q_SLOTS:
 protected Q_SLOTS:
     LeaderPtr addLeaderboardRecord(int turns, int retries);
     void showRestartGameDialog();
-
+    void updateAnimation();
     void showLeaderboard();
     void cancelTurn();
     void startNewGame(int size);
@@ -49,10 +51,24 @@ protected Q_SLOTS:
     void onBlockChanged(int x, int y);
 
     void onCompleteGame(LeaderPtr rec); // Called when player has entered his name to leaderboard
+    void releaseDialogLock();           // Release lock of game board because of active dialog window
 protected:
+    QString getSettingsPath();
+    // Wrapper to show dialog windows. Manages locking of game board
+    void startDialog(QDialog * dialog);
+    bool hasEnqueuedCommand() const;
+    void runNextCommand();
+protected:
+    int dialogLocked = 0;               // Counter for dialog locks
+    int animationTick = 0;              // Current animation tick
+    int animationDuration = 0;          // Number of ticks for current animation transform
+    // Coordinates of queued block change
+    int queuedBlockX = -1, queuedBlockY = -1;
+
     QGridLayout * field_layout;
     QLabel * labelCurrentTurn;
     QLabel * labelRetries;
+    QTimer * animTimer;
 
     GameData * gameData;
 
@@ -61,10 +77,8 @@ protected:
     Leaderboard leaderboard;
 
     int fieldWidth, fieldHeight;
-    QString getSettingsPath();
+
     QString lastName;           // Last player name
-    void loadData();
-    void destroyField(bool deleleWidgets=true);
 };
 
 #endif // MAINWINDOW_H

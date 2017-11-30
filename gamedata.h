@@ -24,6 +24,9 @@ public:
 
     QImage img_hor;
     QImage img_ver;
+
+    // Number of animation frames
+    int animFrames;
     // Desired block size, in pixels
     int blockSize;
     // Animation track from vertical to horisontal

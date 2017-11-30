@@ -11,7 +11,7 @@ class BlockWidget : public QWidget
 {
     Q_OBJECT
 public:
-    BlockWidget(GameData * gd, int x, int y);
+    BlockWidget(const GameData * gd, int x, int y);
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
@@ -28,6 +28,8 @@ public:
     }
 
     void setState(BlockState state);
+    void setAnimationState(BlockState state, int delay);
+    void updateAnimation(int tick);
 protected:
     void paintEvent(QPaintEvent *event) override;
     void mouseReleaseEvent ( QMouseEvent * event ) override;
@@ -36,10 +38,13 @@ signals:
 protected:
     /// Its coordinates in game field
     int x, y;
-    GameData * gd;
+    const GameData * gd;
     // Cached state
     BlockState state;
     // Cached state
     BlockState state_transition;
+
+    bool animated;
+    int frame;      // Animation frame
 };
 #endif // FIELDBLOCK_H

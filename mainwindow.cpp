@@ -1,6 +1,22 @@
 #include "mainwindow.h"
 #include <QtWidgets>
 #include <cassert>
+#include <QLoggingCategory>
+
+void clearLayout(QLayout * layout, bool deleleWidgets)
+{
+    while (QLayoutItem* item = layout->takeAt(0))
+    {
+        if (deleleWidgets)
+        {
+            if (QWidget* widget = item->widget())
+                widget->deleteLater();
+        }
+        if (QLayout* childLayout = item->layout())
+            clearLayout(childLayout, deleleWidgets);
+        delete item;
+    }
+}
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -18,6 +34,10 @@ MainWindow::MainWindow(QWidget *parent)
     readLeaderboard();
     setupMenus();
     setupStatusBar();
+
+    animTimer = new QTimer(this);
+    animTimer->setInterval(33);
+    connect(animTimer, SIGNAL(timeout()), this, SLOT(updateAnimation()));
 
     setWindowTitle(tr("BlockQuiz"));
 }
@@ -89,7 +109,8 @@ void MainWindow::generateFieldWidgets(GameField & field)
 {
     if(field.getWidth() != fieldWidth || field.getHeight() != fieldHeight)
     {
-        destroyField();
+        field_widgets.clear();
+        clearLayout(field_layout, true);
     }
 
     for(int row = 0; row < field.getHeight(); row++)
@@ -128,17 +149,13 @@ void MainWindow::keyPressEvent(QKeyEvent *event)
 
 void MainWindow::onBlockChanged(int x, int y)
 {
-    // 1. Generate new field state
-    field.newTurn();
-    // 2. Update columns and rows
-    for(int col = 0; col < field.getWidth(); col++)
-        field.switchBlock(col, y);
+    if(this->isLocked())
+        return;
 
-    for(int row = 0; row < field.getWidth(); row++)
-        if(row != y)    // skipping central block.
-            field.switchBlock(x, row);
-    // 3. Sync UI according to new field state
-    this->syncUI();
+    this->queuedBlockX = x;
+    this->queuedBlockY = y;
+    // Try to run next command
+    this->runNextCommand();
 }
 
 void MainWindow::cancelTurn()
@@ -149,13 +166,13 @@ void MainWindow::cancelTurn()
 
 void MainWindow::syncUI()
 {
-    for(BlockWidget * block: field_widgets)
+    for(BlockWidget * widget: field_widgets)
     {
-        int x = block->getX();
-        int y = block->getY();
+        int x = widget->getX();
+        int y = widget->getY();
         BlockState state = field.getState(x,y);
-        block->setState(state);
-        block->update();
+        widget->setState(state);
+        widget->update();
     }
 
     this->labelCurrentTurn->setText(QString::asprintf("Turn: %d", field.getCurrentTurn()));
@@ -170,30 +187,96 @@ void MainWindow::syncUI()
 
         connect(dialog, SIGNAL(onComplete(LeaderPtr)), this, SLOT(onCompleteGame(LeaderPtr)));
         // TODO: should add another event?
-
-        dialog->show();
+        startDialog(dialog);
     }
 }
 
-void clearLayout(QLayout * layout, bool deleleWidgets)
+void MainWindow::releaseDialogLock()
 {
-    while (QLayoutItem* item = layout->takeAt(0))
+    if(this->dialogLocked > 0)
+        dialogLocked--;
+}
+
+bool MainWindow::isLocked() const
+{
+    return dialogLocked > 0;
+}
+
+void MainWindow::updateAnimation()
+{
+    if( animationTick == animationDuration)
+        return;
+
+    for(BlockWidget * widget: field_widgets)
     {
-        if (deleleWidgets)
-        {
-            if (QWidget* widget = item->widget())
-                widget->deleteLater();
-        }
-        if (QLayout* childLayout = item->layout())
-            clearLayout(childLayout, deleleWidgets);
-        delete item;
+        widget->updateAnimation(animationTick);
+    }
+
+    animationTick++;
+
+    if(animationTick == animationDuration)
+    {
+        animTimer->stop();
+        animationTick = 0;
+        animationDuration = 0;
+        if(this->hasEnqueuedCommand())
+            this->runNextCommand();
+
+        qInfo().nospace() << QString::asprintf("Animation is complete");
     }
 }
 
-void MainWindow::destroyField(bool deleleWidgets)
+bool MainWindow::hasEnqueuedCommand() const
 {
-    field_widgets.clear();
-    clearLayout(field_layout, deleleWidgets);
+    return this->queuedBlockX >= 0 && queuedBlockY >= 0;
+}
+
+void MainWindow::runNextCommand()
+{
+    if(!hasEnqueuedCommand() || animationTick != animationDuration)
+    {
+        qInfo().nospace() << QString::asprintf("Can not execute next command right now");
+        return;
+    }
+
+    int x = this->queuedBlockX;
+    int y = this->queuedBlockY;
+
+    qInfo().nospace() << QString::asprintf("Starting animation for (%d;%d)", x, y);
+
+    queuedBlockX = -1;
+    queuedBlockY = -1;
+    // 1. Generate new field state
+    field.newTurn();
+    // 2. Update columns and rows
+    for(int col = 0; col < field.getWidth(); col++)
+    {
+        BlockState state = field.switchBlock(col, y);
+        int index = col + y * field.getWidth();
+        this->field_widgets[index]->setAnimationState(state, 0);
+    }
+
+    for(int row = 0; row < field.getWidth(); row++)
+    {
+        if(row != y)    // skipping central block.
+        {
+            BlockState state = field.switchBlock(x, row);
+            int index = x + row * field.getWidth();
+            this->field_widgets[index]->setAnimationState(state, 0);
+        }
+    }
+    // 3. Sync UI according to new field state
+    this->syncUI();
+    // 4. Run animation
+    this->animationTick = 0;
+    this->animationDuration = gameData->animFrames-1;
+    this->animTimer->start();
+}
+
+void MainWindow::startDialog(QDialog * dialog)
+{
+    connect(dialog, SIGNAL(close), this, SLOT(releaseDialogLock()));
+    dialog->show();
 }
 
 void MainWindow::startNewGame(int field_size)
