@@ -7,13 +7,6 @@
 BlockWidget::BlockWidget(GameFieldController * field, GameData * gd, int x, int y)
     :x(x), y(y), controller(field), gd(gd)
 {
-    /*
-    std::stringstream ss;
-    ss << x<<":"<<y;
-    this->setText(ss.str().c_str());
-    this->setAlignment(Qt::AlignHCenter | Qt::AlignBottom);
-    */
-
     state = BlockState::BlockInvalid;
 
     QTimer *timer = new QTimer(this);

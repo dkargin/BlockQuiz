@@ -1,33 +1,37 @@
 #include "mainwindow.h"
-#include <sstream>
-
 #include <QtWidgets>
+#include "newgamedialog.h"
 
 
 MainWindow::MainWindow(QWidget *parent)
-    : QWidget(parent), field(this)
+    : QWidget(parent)
 {
-    this->gameData = new GameData();
-    this->field.init(4, 4);
+    fieldWidth = 0;
+    fieldHeight = 0;
 
+    gameData = new GameData();
     field_layout = new QGridLayout();
 
-    generateField(field);
-    setLayout(field_layout);
+    field.init(4, 4);
 
+    generateFieldWidgets(field);
+
+    setLayout(field_layout);
     setWindowTitle(tr("BlockQuiz"));
 }
-
-
 
 MainWindow::~MainWindow()
 {
 
 }
 
-void MainWindow::generateField(GameField & field)
+void MainWindow::generateFieldWidgets(GameField & field)
 {
-    destroyField();
+    if(field.getWidth() != fieldWidth || field.getHeight() != fieldHeight)
+    {
+        destroyField();
+    }
+
     for(int row = 0; row < field.getHeight(); row++)
     {
         for(int col = 0; col < field.getWidth(); col++)
@@ -37,6 +41,11 @@ void MainWindow::generateField(GameField & field)
             field_layout->addWidget(block, row, col, 1, 1);
         }
     }
+
+    fieldWidth = field.getWidth();
+    fieldHeight = field.getHeight();
+    field_layout->update();
+
     this->syncUI();
 }
 
@@ -92,4 +101,27 @@ void MainWindow::destroyField(bool deleleWidgets)
 {
     field_widgets.clear();
     clearLayout(field_layout, deleleWidgets);
+}
+
+void MainWindow::startNewGame(int field_size)
+{
+    this->field.init(field_size, field_size);
+    this->generateFieldWidgets(field);
+    this->show();
+}
+
+void MainWindow::showNewGameDialog(bool allowExit)
+{
+    NewGameDialog * dialog = new NewGameDialog(this, allowExit);
+    if(allowExit)
+    {
+        connect(dialog, SIGNAL(onExit()), this, SLOT(exitGame()));
+    }
+    connect(dialog, SIGNAL(onStartGame(int)), this, SLOT(startNewGame(int)));
+    dialog->show();
+}
+
+void MainWindow::exitGame()
+{
+    this->close();
 }

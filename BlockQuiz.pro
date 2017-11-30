@@ -28,13 +28,15 @@ SOURCES += \
         mainwindow.cpp \
     gamefield.cpp \
     gamedata.cpp \
-    blockwidget.cpp
+    blockwidget.cpp \
+    newgamedialog.cpp
 
 HEADERS += \
         mainwindow.h \
     gamefield.h \
     gamedata.h \
-    blockwidget.h
+    blockwidget.h \
+    newgamedialog.h
 
 RESOURCES += \
     data.qrc

@@ -24,9 +24,10 @@ typedef std::vector<BlockState> FieldState;
 class GameField
 {
   public:
-    GameField(GameFieldController * controller);
+    GameField();
 
     // Initializes game field with given size
+    // Automatically resets current game to first turn
     void init(int width, int height);
 
     // Make new turn, making copy of current field
@@ -35,6 +36,8 @@ class GameField
     bool cancelTurn();
     // Get current turn
     int currentTurn() const;
+
+    bool valid() const;
 
     // Switches block state
     BlockState switchBlock(int x, int y);
@@ -56,7 +59,6 @@ class GameField
 
     BlockState getState(int x, int y) const;
 
-    //
     FieldState & getCurrentField();
 protected:
 
@@ -64,8 +66,6 @@ protected:
     std::list<FieldState> fields;
     int width = 0, height = 0;
     int retries = 0;
-
-    GameFieldController * controller = nullptr;
 };
 
 #endif // GAMEFIELD_H

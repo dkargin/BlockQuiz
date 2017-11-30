@@ -19,12 +19,17 @@ public:
     GameField field;
 
     // Generates UI for this field
-    void generateField(GameField & field);
+    void generateFieldWidgets(GameField & field);
 
     void onFieldUpdated();
     void onBlockChanged(int x, int y);
 
     void syncUI();
+    // Start new game and show its dialog
+    void showNewGameDialog(bool allowExit);
+protected Q_SLOTS:
+    void startNewGame(int size);
+    void exitGame();
 protected:
     QGridLayout * field_layout;
 
@@ -32,6 +37,7 @@ protected:
 
     std::vector<BlockWidget*> field_widgets;
 
+    int fieldWidth, fieldHeight;
     void loadData();
     void destroyField(bool deleleWidgets=true);
 };

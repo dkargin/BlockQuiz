@@ -8,26 +8,28 @@ void makeRandomField(FieldState &field)
     }
 }
 
-GameField::GameField(GameFieldController * controller)
-    : controller(controller)
+GameField::GameField()
 {
 
 }
 
 void GameField::init(int width, int height)
 {
-    if(this->width != width || this->height != height)
-    {
-
-    }
+    // We reset all data even if geometry is the same
     this->width = width;
     this->height = height;
-    this->fields.clear();
+    this->retries = 0;
 
     // Generate new random state
     FieldState state(this->getFieldSize());
     makeRandomField(state);
+    this->fields.clear();
     fields.push_back(std::move(state));
+}
+
+bool GameField::valid() const
+{
+    return width != 0 && height != 0;
 }
 
 int GameField::newTurn()
