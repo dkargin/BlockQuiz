@@ -4,14 +4,6 @@
 #include <vector>
 #include <list>
 
-class GameFieldController
-{
-public:
-    virtual void onFieldUpdated() = 0;
-    virtual void onBlockChanged(int x, int y) = 0;
-    virtual ~GameFieldController() {}
-};
-
 enum class BlockState
 {
     BlockInvalid,
@@ -35,7 +27,9 @@ class GameField
     // Return to previous state
     bool cancelTurn();
     // Get current turn
-    int currentTurn() const;
+    int getCurrentTurn() const;
+
+    int getRetries() const;
 
     bool valid() const;
 

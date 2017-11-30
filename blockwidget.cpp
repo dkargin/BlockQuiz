@@ -4,8 +4,8 @@
 #include <QPainter>
 #include <QtWidgets>
 
-BlockWidget::BlockWidget(GameFieldController * field, GameData * gd, int x, int y)
-    :x(x), y(y), controller(field), gd(gd)
+BlockWidget::BlockWidget(GameData * gd, int x, int y)
+    :x(x), y(y), gd(gd)
 {
     state = BlockState::BlockInvalid;
 
@@ -115,5 +115,6 @@ void FieldBlock::paintEvent(QPaintEvent *)
 
 void BlockWidget::mouseReleaseEvent ( QMouseEvent * event )
 {
-    this->controller->onBlockChanged(x, y);
+    QSize size = this->size();
+    emit onClickBlock(x,y);
 }

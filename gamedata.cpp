@@ -1,7 +1,11 @@
 #include "gamedata.h"
 #include <QtWidgets>
 #include <cassert>
-#include <sstream>
+#include <QLoggingCategory>
+
+Q_DECLARE_LOGGING_CATEGORY(logDebug)
+
+Q_LOGGING_CATEGORY(logDebug,    "Debug")
 
 ResourceWrapper::ResourceWrapper(const char * path)
     :path(path)
@@ -27,18 +31,24 @@ GameData::GameData()
     // Caution: this anim frames are hardcoded
     for(int i = 0; i < 9; i++)
     {
-        std::stringstream ss;
-        ss<<":data/anim"<<i;
-        this->hor_to_ver.push_back(QImage(ss.str().c_str()));
+        QString path = QString::asprintf(":data/anim%d.png", i);
+        this->hor_to_ver.push_back(QImage(path));
+        if(hor_to_ver.back().isNull())
+        {
+            qDebug().nospace() << "Failed to load file: " << path;
+        }
     }
 
     // Loading animation frames for rotations from 90 to 180 degrees
     // Caution: this anim sequence is hardcoded
     for(int i = 9; i < 18; i++)
     {
-        std::stringstream ss;
-        ss<<":data/anim"<<i;
-        this->ver_to_hor.push_back(QImage(ss.str().c_str()));
+        QString path = QString::asprintf(":data/anim%d.png", i);
+        this->ver_to_hor.push_back(QImage(path));
+        if(ver_to_hor.back().isNull())
+        {
+            qDebug().nospace() << "Failed to load file: " << path;
+        }
     }
 }
 

@@ -7,7 +7,7 @@ int main(int argc, char *argv[])
     MainWindow w;
 
     w.show();
-    w.showNewGameDialog(true);
+    w.showNewGameDialog();
 
     return a.exec();
 }

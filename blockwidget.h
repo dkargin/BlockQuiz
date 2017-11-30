@@ -11,7 +11,7 @@ class BlockWidget : public QWidget
 {
     Q_OBJECT
 public:
-    BlockWidget(GameFieldController * controller, GameData * gd, int x, int y);
+    BlockWidget(GameData * gd, int x, int y);
 
     QSize sizeHint() const override;
     QSize minimumSizeHint() const override;
@@ -31,10 +31,11 @@ public:
 protected:
     void paintEvent(QPaintEvent *event) override;
     void mouseReleaseEvent ( QMouseEvent * event ) override;
+signals:
+    void onClickBlock(int x, int y);
 protected:
     /// Its coordinates in game field
     int x, y;
-    GameFieldController * controller;
     GameData * gd;
     // Cached state
     BlockState state;

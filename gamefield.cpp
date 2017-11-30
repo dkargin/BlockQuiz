@@ -73,3 +73,13 @@ BlockState GameField::getState(int x, int y) const
     }
     return BlockState::BlockInvalid;
 }
+
+int GameField::getCurrentTurn() const
+{
+    return fields.size();
+}
+
+int GameField::getRetries() const
+{
+    return retries;
+}

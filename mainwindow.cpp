@@ -4,25 +4,47 @@
 
 
 MainWindow::MainWindow(QWidget *parent)
-    : QWidget(parent)
+    : QMainWindow(parent)
 {
     fieldWidth = 0;
     fieldHeight = 0;
 
     gameData = new GameData();
     field_layout = new QGridLayout();
+    QWidget * central = new QWidget();
 
-    field.init(4, 4);
+    central->setLayout(field_layout);
+    this->setCentralWidget(central);
 
-    generateFieldWidgets(field);
+    setupMenus();
+    setupStatusBar();
 
-    setLayout(field_layout);
     setWindowTitle(tr("BlockQuiz"));
 }
 
 MainWindow::~MainWindow()
 {
 
+}
+
+void MainWindow::setupMenus()
+{
+    QMenuBar * root = this->menuBar();
+    QMenu * gameMenu = root->addMenu("Game");
+    gameMenu->addAction("New", this, SLOT(showRestartGameDialog()));
+    gameMenu->addAction("Cancel turn", this, SLOT(cancelTurn()));
+    gameMenu->addAction("Leaderboard", this, SLOT(showLeaderboard()));
+    gameMenu->addAction("Exit", this, SLOT(exitGame()));
+}
+
+void MainWindow::setupStatusBar()
+{
+    QStatusBar * bar = this->statusBar();
+
+    this->labelCurrentTurn = new QLabel();
+    this->labelRetries = new QLabel();
+    bar->addPermanentWidget(labelCurrentTurn, 50);
+    bar->addPermanentWidget(labelRetries, 50);
 }
 
 void MainWindow::generateFieldWidgets(GameField & field)
@@ -36,7 +58,8 @@ void MainWindow::generateFieldWidgets(GameField & field)
     {
         for(int col = 0; col < field.getWidth(); col++)
         {
-            BlockWidget * block = new BlockWidget(this, gameData, col, row);
+            BlockWidget * block = new BlockWidget(gameData, col, row);
+            connect(block, SIGNAL(onClickBlock(int, int)), this, SLOT(onBlockChanged(int,int)));
             field_widgets.push_back(block);
             field_layout->addWidget(block, row, col, 1, 1);
         }
@@ -47,11 +70,6 @@ void MainWindow::generateFieldWidgets(GameField & field)
     field_layout->update();
 
     this->syncUI();
-}
-
-void MainWindow::onFieldUpdated()
-{
-
 }
 
 void MainWindow::onBlockChanged(int x, int y)
@@ -69,6 +87,12 @@ void MainWindow::onBlockChanged(int x, int y)
     this->syncUI();
 }
 
+void MainWindow::cancelTurn()
+{
+    this->field.cancelTurn();
+    syncUI();
+}
+
 void MainWindow::syncUI()
 {
     for(BlockWidget * block: field_widgets)
@@ -79,6 +103,10 @@ void MainWindow::syncUI()
         block->setState(state);
         block->update();
     }
+
+    this->labelCurrentTurn->setText(QString::asprintf("Turn: %d", field.getCurrentTurn()));
+    this->labelRetries->setText(QString::asprintf("Retries: %d", field.getRetries()));
+    this->statusBar()->updateGeometry();
 }
 
 void clearLayout(QLayout * layout, bool deleleWidgets)
@@ -96,7 +124,6 @@ void clearLayout(QLayout * layout, bool deleleWidgets)
     }
 }
 
-
 void MainWindow::destroyField(bool deleleWidgets)
 {
     field_widgets.clear();
@@ -110,15 +137,24 @@ void MainWindow::startNewGame(int field_size)
     this->show();
 }
 
-void MainWindow::showNewGameDialog(bool allowExit)
+void MainWindow::showNewGameDialog()
 {
-    NewGameDialog * dialog = new NewGameDialog(this, allowExit);
-    if(allowExit)
-    {
-        connect(dialog, SIGNAL(onExit()), this, SLOT(exitGame()));
-    }
+    NewGameDialog * dialog = new NewGameDialog(this, true);
+    connect(dialog, SIGNAL(onExit()), this, SLOT(exitGame()));
     connect(dialog, SIGNAL(onStartGame(int)), this, SLOT(startNewGame(int)));
     dialog->show();
+}
+
+void MainWindow::showRestartGameDialog()
+{
+    NewGameDialog * dialog = new NewGameDialog(this, false);
+    connect(dialog, SIGNAL(onStartGame(int)), this, SLOT(startNewGame(int)));
+    dialog->show();
+}
+
+void MainWindow::showLeaderboard()
+{
+    // TODO: implement it
 }
 
 void MainWindow::exitGame()

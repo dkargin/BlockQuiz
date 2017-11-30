@@ -33,6 +33,7 @@ NewGameDialog::NewGameDialog(QWidget *parent, bool allow_exit)
     this->setLayout(layout);
 
     this->setWindowTitle(tr("Select field size"));
+    this->setFixedSize(180, 80);
 }
 
 void NewGameDialog::onStartClicked()
