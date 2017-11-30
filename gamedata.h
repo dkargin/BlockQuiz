@@ -2,25 +2,34 @@
 #define GAMEDATA_H
 
 #include <QObject>
+#include <QImage>
 #include <vector>
 
-class GameData : public QObject
+
+// Helper class to initialize and clear resources
+class ResourceWrapper
 {
-    Q_OBJECT
+    std::string path;
 public:
-    explicit GameData(QObject *parent = nullptr);
-    virtual ~GameData();
+    ResourceWrapper(const char * path);
+    ~ResourceWrapper();
+};
 
-    QImage * img_hor;
-    QImage * img_ver;
+// Contains references to game resources
+class GameData
+{
+    ResourceWrapper res_helper;
+public:
+    GameData();
+
+    QImage img_hor;
+    QImage img_ver;
+    // Desired block size, in pixels
+    int blockSize;
     // Animation track from vertical to horisontal
-    std::vector<QImage*> ver_to_hor;
+    std::vector<QImage> ver_to_hor;
     // Animation track from vertical to horisontal
-    std::vector<QImage*> hor_to_ver;
-
-signals:
-
-public slots:
+    std::vector<QImage> hor_to_ver;
 };
 
 #endif // GAMEDATA_H

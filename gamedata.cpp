@@ -1,15 +1,25 @@
 #include "gamedata.h"
+#include <QtWidgets>
+#include <cassert>
 
-GameData::GameData(QObject *parent) : QObject(parent)
+ResourceWrapper::ResourceWrapper(const char * path)
+    :path(path)
 {
-    QResource::registerResource("data.rcc");
-
-    this->img_hor = QImage(":data/horizontal.png");
-    this->img_ver = QImage(":data/vertical.png");
+    QResource::registerResource(this->path.c_str());
 }
 
-GameData::~GameData()
+ResourceWrapper::~ResourceWrapper()
 {
-    delete img_hor;
-    delete img_ver;
+    QResource::unregisterResource(this->path.c_str());
 }
+
+GameData::GameData()
+    :res_helper("data.rcc")
+    ,img_hor(":data/horizontal.png")
+    ,img_ver(":data/vertical.png")
+{
+    assert(!img_hor.isNull() && !img_ver.isNull());
+
+    this->blockSize = img_hor.width();
+}
+

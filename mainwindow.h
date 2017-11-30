@@ -2,9 +2,7 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
-#include <QLabel>
 #include <QGridLayout>
-
 
 #include "blockwidget.h"
 #include "gamefield.h"

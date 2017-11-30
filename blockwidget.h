@@ -13,15 +13,9 @@ class BlockWidget : public QWidget
 public:
     BlockWidget(GameFieldController * controller, GameData * gd, int x, int y);
 
-    QSize sizeHint() const override
-    {
-        return QSize(32,32);
-    }
-
-    QSize minimumSizeHint() const override
-    {
-        return QSize(32,32);
-    }
+    QSize sizeHint() const override;
+    QSize minimumSizeHint() const override;
+    int preferredSize() const;
 
     int getX() const
     {
@@ -33,7 +27,7 @@ public:
         return y;
     }
 
-    void setState(BlockState state, int duration_ms, int delay_ms);
+    void setState(BlockState state);
 protected:
     void paintEvent(QPaintEvent *event) override;
     void mouseReleaseEvent ( QMouseEvent * event ) override;

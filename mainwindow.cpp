@@ -7,7 +7,7 @@
 MainWindow::MainWindow(QWidget *parent)
     : QWidget(parent), field(this)
 {
-    this->gameData = new GameData(this);
+    this->gameData = new GameData();
     this->field.init(4, 4);
 
     field_layout = new QGridLayout();
@@ -33,9 +33,11 @@ void MainWindow::generateField(GameField & field)
         for(int col = 0; col < field.getWidth(); col++)
         {
             BlockWidget * block = new BlockWidget(this, gameData, col, row);
+            field_widgets.push_back(block);
             field_layout->addWidget(block, row, col, 1, 1);
         }
     }
+    this->syncUI();
 }
 
 void MainWindow::onFieldUpdated()
@@ -64,7 +66,9 @@ void MainWindow::syncUI()
     {
         int x = block->getX();
         int y = block->getY();
-        block->setState(field.getState(x,y), 0, 0);
+        BlockState state = field.getState(x,y);
+        block->setState(state);
+        block->update();
     }
 }
 

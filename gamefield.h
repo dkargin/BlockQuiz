@@ -12,7 +12,7 @@ public:
     virtual ~GameFieldController() {}
 };
 
-enum BlockState
+enum class BlockState
 {
     BlockInvalid,
     BlockHorizontal,
@@ -25,8 +25,6 @@ class GameField
 {
   public:
     GameField(GameFieldController * controller);
-
-
 
     // Initializes game field with given size
     void init(int width, int height);

@@ -4,7 +4,7 @@ void makeRandomField(FieldState &field)
 {
     for(BlockState & state : field)
     {
-        state = (rand() & 0x1) ? BlockHorizontal : BlockVertical;
+        state = (rand() & 0x1) ? BlockState::BlockHorizontal : BlockState::BlockVertical;
     }
 }
 
@@ -51,14 +51,14 @@ bool GameField::cancelTurn()
 BlockState GameField::switchBlock(int x, int y)
 {
     if(fields.empty())
-        return BlockInvalid;
+        return BlockState::BlockInvalid;
     FieldState & field = fields.back();
     int index = x + y * width;
     BlockState & s = field[index];
-    if(s == BlockHorizontal)
-        s = BlockVertical;
-    else if(s == BlockVertical)
-        s = BlockHorizontal;
+    if(s == BlockState::BlockHorizontal)
+        s = BlockState::BlockVertical;
+    else if(s == BlockState::BlockVertical)
+        s = BlockState::BlockHorizontal;
     return s;
 }
 
@@ -69,5 +69,5 @@ BlockState GameField::getState(int x, int y) const
         int index = x + y * width;
         return fields.back()[index];
     }
-    return BlockInvalid;
+    return BlockState::BlockInvalid;
 }

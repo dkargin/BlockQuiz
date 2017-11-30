@@ -1,18 +1,41 @@
 #include "blockwidget.h"
+#include <sstream>
+#include <QTimer>
+#include <QPainter>
+#include <QtWidgets>
 
-BlockWidget::BlockWidget(GameFieldController * field, int x, int y)
-    :QLabel(), x(x), y(y), controller(field)
+BlockWidget::BlockWidget(GameFieldController * field, GameData * gd, int x, int y)
+    :x(x), y(y), controller(field), gd(gd)
 {
+    /*
     std::stringstream ss;
     ss << x<<":"<<y;
     this->setText(ss.str().c_str());
     this->setAlignment(Qt::AlignHCenter | Qt::AlignBottom);
+    */
 
-    state = GameField::Horisontal;
+    state = BlockState::BlockInvalid;
 
     QTimer *timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(update()));
     timer->start(1000);
+}
+
+QSize BlockWidget::sizeHint() const
+{
+    int size = preferredSize();
+    return QSize(size, size);
+}
+
+QSize BlockWidget::minimumSizeHint() const
+{
+    int size = preferredSize();
+    return QSize(size, size);
+}
+
+int BlockWidget::preferredSize() const
+{
+    return gd != nullptr ? gd->blockSize : 1;
 }
 
 void BlockWidget::paintEvent(QPaintEvent *)
@@ -22,16 +45,17 @@ void BlockWidget::paintEvent(QPaintEvent *)
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
     QImage * img = nullptr;
-    if(state == GameField::Horisontal)
-        img = gd->img_hor;
-    if(state == GameField::Vertical)
-        img = gd->img_ver;
+    if(state == BlockState::BlockHorizontal)
+        img = &gd->img_hor;
+    if(state ==BlockState::BlockVertical)
+        img = &gd->img_ver;
 
     if(img != nullptr)
-        painter.drawPixmap(0,0,img);
+        painter.drawImage(QPoint(0,0),*img);
 }
 
-void BlockWidget::setState(BlockState new_state, int duration_ms, int delay_ms)
+//void BlockWidget::setState(BlockState new_state, int duration_ms, int delay_ms)
+void BlockWidget::setState(BlockState new_state)
 {
     this->state = new_state;
     // TODO: do animation stuff here
